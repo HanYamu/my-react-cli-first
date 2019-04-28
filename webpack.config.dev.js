@@ -2,7 +2,8 @@ const path = require('path');
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin'); //引入打包的html模板
 const ExtractTextPlugin = require('extract-text-webpack-plugin'); //引入css文件分离
-// const CopyWebpackPlugin = require("copy-webpack-plugin"); //复制静态文件夹
+const CopyWebpackPlugin = require("copy-webpack-plugin"); //复制静态文件夹
+const HappyPack = require('happypack'); // happypack webpack多线程打包;
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -29,18 +30,19 @@ const devConfig = {
     rules: [
       {
         test:/\.(jsx|js)$/,
+        use: ['happypack/loader?id=js'], // 将对.js文件的处理转交给id为babel的HappyPack的实列
         exclude:/node_modules/,
-        use:{
-            loader:'babel-loader',
-            options: { cacheDirectory: true } // babel-loader在执行的时候，可能会产生一些运行期间重复的公共文件，造成代码体积大冗余，同时也会减慢编译效率可以加上cacheDirectory参数
-        },
+        // use:{ // 未使用happypack时的写法
+        //     loader:'babel-loader',
+        //     options: { cacheDirectory: true } // babel-loader在执行的时候，可能会产生一些运行期间重复的公共文件，造成代码体积大冗余，同时也会减慢编译效率可以加上cacheDirectory参数
+        // },
       },
       {
         test:/\.css$/,
         exclude:/node_modules/,
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
-          use: "css-loader"
+          use: "css-loader?module"
         }),
       },
       {
@@ -91,7 +93,9 @@ const devConfig = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    // new CopyWebpackPlugin([{from: "./src/assets", to: "assets"}]),
+    new CopyWebpackPlugin([
+      {from: "./dll", to: "dll"}   // 把第三方库打包的dll引入进来
+    ]),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, './public/index.html'), //指定要打包的html路径和文件名
       favicon:path.join(__dirname, './public/favicon.ico'), //给生成的 html 文件生成一个标签<link rel="shortcut icon" href="apple-touch-icon.png">
@@ -103,6 +107,17 @@ const devConfig = {
       }
     }),
     new ExtractTextPlugin("css/index.css"),  //这里的/css/index.css 是分离后的路径
+    new webpack.DllReferencePlugin({
+      context: __dirname,
+      manifest: require("./dll/manifest.vendors.json"),
+      // name: 'vendors',
+    }),
+    new HappyPack({
+      // 用唯一的标识符id来代表当前的HappyPack 处理一类特定的文件
+      id: 'js',
+      // 如何处理.js文件，用法和Loader配置是一样的
+      loaders: ['babel-loader']
+    })
   ]
 };
 
