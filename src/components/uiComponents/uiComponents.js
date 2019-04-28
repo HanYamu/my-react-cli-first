@@ -13,10 +13,11 @@ class UiHead extends Component {
                 right: ""
             }
         }
+        this.uiHeaderRef = React.createRef()
     }
     render(){
         return (
-            <div className="ui_head" ref="uiHeaderRef">
+            <div className="ui_head" ref={this.uiHeaderRef}>
                 <div className="ui_head_left" onClick={this.leftClick.bind(this)}>{this.props.headerOptions && this.props.headerOptions.left ? this.props.headerOptions.left : <img src={require("../../assets/img/back-zqq.png")} alt=""/>}</div>
                 <div className="ui_head_middle">{this.props.headerOptions && this.props.headerOptions.title ? this.props.headerOptions.title : this.state.headerOptions.title}</div>
                 <div className="ui_head_right" onClick={this.rightClick.bind(this)}>{this.props.headerOptions && this.props.headerOptions.right ? this.props.headerOptions.right : this.state.headerOptions.right}</div>
@@ -32,7 +33,7 @@ class UiHead extends Component {
         */
         /** 该判断用于添加头部组件的class */
         if(this.props.className) {
-            this.refs.uiHeaderRef.classList.add(this.props.className)
+            this.uiHeaderRef.current.classList.add(this.props.className)
         }
     }
     leftClick() {
@@ -55,6 +56,7 @@ class UiContainer extends Component {
     constructor(props, context) {
         super(props, context);
         this.state = {}
+        this.uiContainer = React.createRef()
     }
     render(){
         /** this.props.children放在内部使得在其他页面调用该组件时可以向里面插入html标签，
@@ -62,13 +64,13 @@ class UiContainer extends Component {
          * 如果有一个子节点，数据类型是 object ；如果有多个子节点，数据类型就是 array 。
          * */
         return (
-            <div className="ui_container" ref="uiContainer">{this.props.children}</div>
+            <div className="ui_container" ref={this.uiContainer}>{this.props.children}</div>
         )
     }
     componentDidMount() {
         /** 该判断用于添加内容组件的class */
         if(this.props.className) {
-            this.refs.uiContainer.classList.add(this.props.className)
+            this.uiContainer.current.classList.add(this.props.className)
         }
     }
 }
@@ -77,6 +79,7 @@ class UiLayout extends Component {
     constructor(props, context) {
         super(props, context);
         this.state = {}
+        this.uiLayout = React.createRef()
     }
     render(){
         /** this.props.children放在内部使得在其他页面调用该组件时可以向里面插入html标签，
@@ -84,13 +87,13 @@ class UiLayout extends Component {
          * 如果有一个子节点，数据类型是 object ；如果有多个子节点，数据类型就是 array 。
          * */
         return (
-            <div className="ui_layout" ref="uiLayout">{this.props.children}</div>
+            <div className="ui_layout" ref={this.uiLayout}>{this.props.children}</div>
         )
     }
     componentDidMount() {
         /** 该判断用于添加外层布局组件的class */
         if(this.props.className) {
-            this.refs.uiLayout.classList.add(this.props.className)
+            this.uiLayout.current.classList.add(this.props.className)
         }
     }
 }
